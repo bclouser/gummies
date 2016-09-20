@@ -19,9 +19,10 @@ import (
 	"log"
 	"os"
 	"time"
-	//"gopkg.in/mgo.v2"
-	//"gopkg.in/mgo.v2/bson"
+	"strings"
 	"github.com/eclipse/paho.mqtt.golang"
+	//"github.com/bclouser/gummies/config"
+	"github.com/bclouser/gummies/interfaces/phillipsHue"
 )
 
 var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
@@ -31,6 +32,18 @@ var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	// validate against configs?
 
 	// add some stuff to database. or queue up those actions
+
+	topicSplit := strings.Split(msg.Topic(), "/")
+	if len(topicSplit) > 0 {
+		fmt.Println("OK, we split our topic... its this", topicSplit)
+		device := topicSplit[len(topicSplit)-1]
+		phillipsHue.ToggleLight(device)
+	}
+
+}
+func SyncDevices(){
+	//cfg := config.GetConfig()
+	//fmt.Println("OK, we got cfg: %s\n", cfg.Devices[0])
 }
 
 func MessageLoop() {

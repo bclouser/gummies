@@ -3,17 +3,29 @@ package main
 
 import (
 	"time"
-	"github.com/bclouser/gummies/interfaces/device/mqtt"
+	"github.com/bclouser/gummies/interfaces/mqtt"
+	//"github.com/bclouser/gummies/config"
+	"github.com/bclouser/gummies/interfaces/phillipsHue"
 )
+
+var configFile="./"
+
 
 func main() {
 	// Read in Config files
 
 	// Parse config files
+	//cfg := GetConfig(configFile)
 
 	// Connect to database
 
 	// Synchronize configs with database (also possibly use Redis)
+
+	phillipsHue.Init()
+
+	// Maybe we should have a configuration section?
+	// sync configurations with devices over mqtt
+	mqtt.SyncDevices()
 
 	// Kick off MQTT handler
 	go mqtt.MessageLoop()
