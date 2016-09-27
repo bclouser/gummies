@@ -32,12 +32,24 @@ var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	// validate against configs?
 
 	// add some stuff to database. or queue up those actions
-
 	topicSplit := strings.Split(msg.Topic(), "/")
 	if len(topicSplit) > 0 {
+
+		// first item in topic should be the building name?
+
+		// second item in topic should be the room
+		// get all items for this specific room
+
+
+		// second item in the topic should be the device name (unique by room)
+
+
+
 		fmt.Println("OK, we split our topic... its this", topicSplit)
 		device := topicSplit[len(topicSplit)-1]
 		phillipsHue.ToggleLight(device)
+	} else {
+		fmt.Println("Bad topic string")
 	}
 
 }

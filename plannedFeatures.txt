@@ -1,0 +1,6 @@
+General:
+- Bindings for pretty much all modern languages
+
+
+PhillipsHue:
+- auto change username and subsequent token
