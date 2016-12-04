@@ -4,8 +4,10 @@ package main
 import (
 	"time"
 	"github.com/bclouser/gummies/interfaces/mqtt"
-	//"github.com/bclouser/gummies/config"
-	"github.com/bclouser/gummies/interfaces/phillipsHue"
+	"github.com/bclouser/gummies/interfaces/messageHandler"
+
+	// Eventually, all devices will be initialized via a device init call on probe
+	"github.com/bclouser/gummies/devices/philipsHue"
 )
 
 var configFile="./"
@@ -19,9 +21,11 @@ func main() {
 
 	// Connect to database
 
+	// Setup our MessageHandler
+	messageHandler.Init()
 	// Synchronize configs with database (also possibly use Redis)
 
-	phillipsHue.Init()
+	philipsHue.Init()
 
 	// Maybe we should have a configuration section?
 	// sync configurations with devices over mqtt

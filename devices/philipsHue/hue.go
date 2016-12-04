@@ -1,7 +1,8 @@
-package phillipsHue
+package philipsHue
 
 import (
     "github.com/collinux/gohue"
+    "github.com/bclouser/gummies/message"
     "fmt"
     "strconv"
 )
@@ -27,14 +28,30 @@ func Init() {
     }
 }
 
-func ToggleLight(lightName string) {
-	fmt.Println("Toggling light with name: ", lightName)
+func toggleLight(lightNum int) {
+	fmt.Println("Toggling light numer: ", lightNum)
     //someLight, error := bridge.GetLightByName(lightName)
 
-    // Get the last character which should contain the index of the light
-    index, _ := strconv.Atoi( string(lightName[len(lightName)-1]) );
-    someLight, error := bridge.GetLightByIndex(index)
+    someLight, error := bridge.GetLightByIndex(lightNum)
     if error == nil {
     	someLight.Toggle()
     }
+}
+
+func ProcessMessage(msg message.Message) {
+    fmt.Println("HUE: Building ", msg.EndP.Building)
+    fmt.Println("HUE: Room ", msg.EndP.Room)
+    fmt.Println("HUE: DeviceName ", msg.EndP.DeviceName)
+
+    if "light" == msg.EndP.DeviceName[:len(msg.EndP.DeviceName)-1] {
+        // Get the last character which should contain the index of the light
+        lightNum, err := strconv.Atoi( msg.EndP.DeviceName[len(msg.EndP.DeviceName)-1:] )
+        if err != nil {
+            fmt.Println("Failed to parse number from light string")
+            return
+        }
+        toggleLight(lightNum)
+    }
+    //fmt.Fscanf("%s%d", &lightName, &lightNum)
+    //fmt.Println("lightName ", lightName, " lightNum ", lightNum)
 }

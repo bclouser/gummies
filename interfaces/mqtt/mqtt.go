@@ -19,38 +19,21 @@ import (
 	"log"
 	"os"
 	"time"
-	"strings"
 	"github.com/eclipse/paho.mqtt.golang"
-	//"github.com/bclouser/gummies/config"
-	"github.com/bclouser/gummies/interfaces/phillipsHue"
+	"github.com/bclouser/gummies/message"
+	"github.com/bclouser/gummies/interfaces/messageHandler"
 )
 
-var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	fmt.Printf("TOPIC: %s\n", msg.Topic())
-	fmt.Printf("MSG: %s\n", msg.Payload())
+var f mqtt.MessageHandler = func(client mqtt.Client, inMsg mqtt.Message) {
+	topic := inMsg.Topic()
+	payload := inMsg.Payload()
+	fmt.Printf("TOPIC: %s\n", topic)
+	fmt.Printf("MSG: %s\n", payload)
 
-	// validate against configs?
+	// convert mqtt message to generic message type
+	message := message.Message{RawEndP:topic, Payload:payload}
 
-	// add some stuff to database. or queue up those actions
-	topicSplit := strings.Split(msg.Topic(), "/")
-	if len(topicSplit) > 0 {
-
-		// first item in topic should be the building name?
-
-		// second item in topic should be the room
-		// get all items for this specific room
-
-
-		// second item in the topic should be the device name (unique by room)
-
-
-
-		fmt.Println("OK, we split our topic... its this", topicSplit)
-		device := topicSplit[len(topicSplit)-1]
-		phillipsHue.ToggleLight(device)
-	} else {
-		fmt.Println("Bad topic string")
-	}
+	messageHandler.NewMessageIn(message)
 
 }
 func SyncDevices(){
@@ -62,7 +45,7 @@ func MessageLoop() {
 	mqtt.DEBUG = log.New(os.Stdout, "", 0)
 	mqtt.ERROR = log.New(os.Stdout, "", 0)
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker("tcp://192.168.0.199:1883").SetClientID("home")
+	opts.AddBroker("tcp://192.168.1.199:1883").SetClientID("home")
 	//opts.SetUsername("maurice")
 	//opts.SetPassword("saucy")
 	opts.SetKeepAlive(20 * time.Second)
