@@ -14,5 +14,10 @@ type Message struct {
 	RawEndP string
 	EndP EndPoint
 	Payload []byte
+}
 
+type HueMessage struct {
+	// Color int // rgb maybe?
+	Command string
+	Brightness int
 }

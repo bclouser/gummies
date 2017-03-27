@@ -5,6 +5,7 @@ import (
     "github.com/bclouser/gummies/message"
     "fmt"
     "strconv"
+    "encoding/json"
 )
 
 var bridge hue.Bridge
@@ -29,12 +30,27 @@ func Init() {
 }
 
 func toggleLight(lightNum int) {
-	fmt.Println("Toggling light numer: ", lightNum)
+	fmt.Println("Toggling light number: ", lightNum)
     //someLight, error := bridge.GetLightByName(lightName)
 
-    someLight, error := bridge.GetLightByIndex(lightNum)
+    light, error := bridge.GetLightByIndex(lightNum)
     if error == nil {
-    	someLight.Toggle()
+        light.Toggle()
+    }
+}
+
+func setLightBrightness(lightNum int, brightness int) {
+    fmt.Println("Setting brightness of light: ", lightNum)
+
+    light, error := bridge.GetLightByIndex(lightNum)
+    if error == nil {
+        if brightness >= 100 { 
+            light.SetBrightness(100)
+        } else if brightness >= 0 {
+            light.SetBrightness(brightness)
+        } else {
+            fmt.Println("HUE: Bad brightness value specified")
+        }
     }
 }
 
@@ -43,6 +59,8 @@ func ProcessMessage(msg message.Message) {
     fmt.Println("HUE: Room ", msg.EndP.Room)
     fmt.Println("HUE: DeviceName ", msg.EndP.DeviceName)
 
+    var m message.HueMessage
+
     if "light" == msg.EndP.DeviceName[:len(msg.EndP.DeviceName)-1] {
         // Get the last character which should contain the index of the light
         lightNum, err := strconv.Atoi( msg.EndP.DeviceName[len(msg.EndP.DeviceName)-1:] )
@@ -50,7 +68,26 @@ func ProcessMessage(msg message.Message) {
             fmt.Println("Failed to parse number from light string")
             return
         }
-        toggleLight(lightNum)
+
+
+        err = json.Unmarshal(msg.Payload, &m)
+        if err != nil {
+            fmt.Println("Failed to parse json message")
+        }
+
+        fmt.Println("Received command ", m.Command)
+        switch m.Command {
+            case "toggleCurrent":
+                // toggle light without modifying brightness
+                toggleLight(lightNum)
+
+            case "toggleSet":
+                // toggle light and set the brightness
+                setLightBrightness(lightNum, m.Brightness)
+                toggleLight(lightNum)
+            default:
+                fmt.Println("Unknown Command")
+        }
     }
     //fmt.Fscanf("%s%d", &lightName, &lightNum)
     //fmt.Println("lightName ", lightName, " lightNum ", lightNum)
